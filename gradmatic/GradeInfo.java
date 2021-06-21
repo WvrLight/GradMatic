@@ -35,7 +35,7 @@ public class GradeInfo {
     }
     
     /* This method creates a new grade to add to the database or updates an existing one */
-    public static void createGrade(Statement s, int studentID, int subjectID, int periodID, int quizScore, int examScore, int activityScore, int otherScore, float studentPeriodGrade) {
+    public static void createGrade(Statement s, int studentID, int subjectID, int periodID, int quizScore, int examScore, int activityScore, int otherScore, double studentPeriodGrade) {
         try {
             s.executeUpdate("insert or replace into Grades values (" + studentID + ", " + subjectID + ", " + periodID + ", " + quizScore
             + ", " + examScore + ", " + activityScore + ", " + otherScore + ", " + studentPeriodGrade + ")");
@@ -63,5 +63,5 @@ class Grade {
     int examScore;
     int activityScore;
     int otherScore;
-    float studentPeriodGrade;
+    double studentPeriodGrade;
 }

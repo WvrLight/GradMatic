@@ -6,6 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import gradmatic.SectionInfo; // this is for testing purposes only
+import gradmatic.GradeInfo;
+import gradmatic.SubjectInfo;
+
 public class StudentInfo {
 
     /* This method returns all the info given a particular student ID */
@@ -66,10 +70,7 @@ public class StudentInfo {
 			// EDITABLE AREA
 
             // sample method of creating a student
-            createStudent(s, 122, "asd", "isaac", "s", 1);
-
-            // sample method of updating a student
-            // updateStudent(s, 122, 121, "a", "kevin", "m", 0, 2);
+            // createStudent(s, 122, "asd", "isaac", "s", 1);
 
             // sample use of getting created student
             // Student test = getStudent(s, 122);
@@ -80,6 +81,18 @@ public class StudentInfo {
 
             // sample use of removing a student
             // removeStudent(s, 122);
+
+            SectionInfo.createSection(s, 10, "St. Therese of Lisieux");
+            StudentInfo.createStudent(s, 122, "asd", "isaac", "s", 10);
+            SubjectInfo.createSubject(s, 10, "Mathematics", 0.25, 0.3, 0.25, 0.2);
+            SubjectInfo.setSubjectTotals(s, 10, 1, 20, 75, 15, 5);
+            SubjectInfo.setSubjectTotals(s, 10, 2, 30, 75, 20, 5);
+            SubjectInfo.setSubjectTotals(s, 10, 3, 25, 75, 20, 5);
+            SubjectInfo.setSubjectTotals(s, 10, 4, 30, 75, 25, 5);
+            GradeInfo.createGrade(s, 122, 10, 1, 10, 60, 10, 5, 82);
+            GradeInfo.createGrade(s, 122, 10, 2, 20, 62, 20, 5, 83);
+            GradeInfo.createGrade(s, 122, 10, 3, 17, 53, 18, 5, 89);
+            GradeInfo.createGrade(s, 122, 10, 4, 25, 58, 22, 5, 87);
 
             // END OF EDITABLE AREA
 		}
@@ -106,6 +119,6 @@ class Student {
     String studentLN;
     String studentFN;
     String studentMI;
-    float studentGWA;
+    double studentGWA;
     int sectionID;
 }

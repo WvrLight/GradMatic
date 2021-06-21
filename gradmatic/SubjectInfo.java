@@ -33,7 +33,7 @@ public class SubjectInfo {
     }
     
     /* This method creates a new subject to add to the database or updates an existing one */
-    public static void createSubject(Statement s, int subjectID, String subjectName, float quizWeight, float examWeight, float activityWeight, float otherWeight) {
+    public static void createSubject(Statement s, int subjectID, String subjectName, double quizWeight, double examWeight, double activityWeight, double otherWeight) {
         try {
             s.executeUpdate("insert or replace into Subjects values (" + subjectID + ", '" + subjectName + "', " + quizWeight + ", " + examWeight + ", " + activityWeight + ", " + otherWeight + ")");
         }
@@ -85,10 +85,10 @@ public class SubjectInfo {
 class Subject {
     int subjectID;
     String subjectName;
-    float quizWeight;
-    float examWeight;
-    float activityWeight;
-    float otherWeight;
+    double quizWeight;
+    double examWeight;
+    double activityWeight;
+    double otherWeight;
     int quizTotal;
     int examTotal;
     int activityTotal;
