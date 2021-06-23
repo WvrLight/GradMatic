@@ -13,7 +13,7 @@ public class GradeInfo {
         Grade tempGrade = new Grade();
 
         try {
-            ResultSet rs = s.executeQuery("select * from Grades where gradeID = " + studentID + " and subjectID = " + subjectID + " and periodID = " + periodID + ";");
+            ResultSet rs = s.executeQuery("select * from Grades where studentID = " + studentID + " and subjectID = " + subjectID + " and periodID = " + periodID + ";");
             while (rs.next()) {
                 tempGrade.quizScore = rs.getInt("quizScore");
                 tempGrade.examScore = rs.getInt("examScore");
