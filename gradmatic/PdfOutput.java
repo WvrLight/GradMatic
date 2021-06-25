@@ -1,7 +1,5 @@
 package gradmatic;
 
-import java.util.ArrayList;
-
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -11,29 +9,16 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.HorizontalAlignment;
+import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import java.io.File;
 import java.io.IOException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
-
-import gradmatic.StudentInfo;
-import gradmatic.SectionInfo;
-import gradmatic.GradeInfo;
-import gradmatic.SubjectInfo;
-
 public class PdfOutput {
-    public static final String DEST = "./key_value_table.pdf";
+    static String dest;
 
     public static void main(String[] args) throws Exception {
-        // File file = new File(DEST);
-        // file.getParentFile().mkdirs();
-
         // StudentRecord test = new StudentRecord(122);
         // System.out.println(test.student.studentLN);
         // System.out.println(test.section.sectionName);
@@ -43,99 +28,110 @@ public class PdfOutput {
         // System.out.println(test.grade.get(2).studentPeriodGrade);
         // System.out.println(test.grade.get(3).studentPeriodGrade);
 
-        // new PdfOutput().manipulatePdf(DEST);
+        new PdfOutput().manipulatePdf(0, 920);
     }
 
-    // protected void manipulatePdf(String dest) throws IOException {
+    protected void manipulatePdf(int tableType, int ID) throws IOException {
+        if (tableType == 0) dest = "./records/student_" + ID + ".pdf";
+        else dest = "./records/section_" + ID;
 
-    //     PdfDocument pdf = new PdfDocument(new PdfWriter(dest));
-    //     Document document = new Document(pdf);
-    //     PdfFont regular = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN);
-    //     PdfFont bold = PdfFontFactory.createFont(StandardFonts.TIMES_BOLD);
+        File file = new File(dest);
+        file.getParentFile().mkdirs();
 
-    //     document.add(createTable(rohit, bold, regular));
-    //     document.add(createTable(bruno, bold, regular));
+        PdfDocument pdf = new PdfDocument(new PdfWriter(dest));
+        Document document = new Document(pdf);
+        PdfFont regular = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN);
+        PdfFont bold = PdfFontFactory.createFont(StandardFonts.TIMES_BOLD);
 
-    //     document.close();
-    // }
+        if (tableType == 0) document.add(studentTable(document, ID, bold, regular));
+        else document.add(sectionTable(document, ID, bold, regular));
 
-    // private static Table createTable(UserObject user, PdfFont titleFont, PdfFont defaultFont) {
-    //     Table table = new Table(UnitValue.createPercentArray(2));
-    //     table.setWidth(UnitValue.createPercentValue(30)).setMarginBottom(10);
+        document.close();
+    }
 
-    //     table.addHeaderCell(new Cell().setFont(titleFont).add(new Paragraph("Key")));
-    //     table.addHeaderCell(new Cell().setFont(titleFont).add(new Paragraph("Value")));
+    private static Table studentTable(Document document, int studentID, PdfFont titleFont, PdfFont defaultFont) {
+        StudentRecord record = new StudentRecord(studentID);
 
-    //     table.addCell(new Cell().setFont(titleFont).add(new Paragraph("Name")));
-    //     table.addCell(new Cell().setFont(defaultFont).add(new Paragraph(user.getName())));
+        createText(document, "STUDENT RECORD", TextAlignment.CENTER, titleFont);
+        createText(document, "\n", TextAlignment.CENTER, defaultFont);
+        createText(document,
+                "Name: " + record.student.studentLN + ", " + record.student.studentFN + " " + record.student.studentMI,
+                TextAlignment.LEFT, defaultFont);
+        createText(document, "Section: " + record.section.sectionName, TextAlignment.LEFT, defaultFont);
+        createText(document, "\n", TextAlignment.CENTER, defaultFont);
 
-    //     table.addCell(new Cell().setFont(titleFont).add(new Paragraph("Id")));
-    //     table.addCell(new Cell().setFont(defaultFont).add(new Paragraph(user.getId())));
+        Table table = new Table(UnitValue.createPercentArray(6)).useAllAvailableWidth();
+        table.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-    //     table.addCell(new Cell().setFont(titleFont).add(new Paragraph("Reputation")));
-    //     table.addCell(new Cell().setFont(defaultFont).add(new Paragraph(String.valueOf(user.getReputation()))));
+        // Headers
+        table.addHeaderCell(tableCell("Student ID", titleFont));
+        table.addHeaderCell(tableCell("1st Quarter", titleFont));
+        table.addHeaderCell(tableCell("2nd Quarter", titleFont));
+        table.addHeaderCell(tableCell("3rd Quarter", titleFont));
+        table.addHeaderCell(tableCell("4th Quarter", titleFont));
+        table.addHeaderCell(tableCell("Average", titleFont));
 
-    //     table.addCell(new Cell().setFont(titleFont).add(new Paragraph("Job title")));
-    //     table.addCell(new Cell().setFont(defaultFont).add(new Paragraph(user.getJobtitle())));
-
-    //     return table;
-    // }
-
-    private static class StudentRecord {
-        Section section = new Section();
-        Student student = new Student();
-        ArrayList<Subject> subject = new ArrayList<Subject>();
-        ArrayList<Grade> grade = new ArrayList<Grade>();
-
-        public StudentRecord(int studentID) {
-            Connection connection = null;
-            try {
-                ResultSet rs;
-
-                // create a database connection
-                connection = DriverManager.getConnection("jdbc:sqlite:gm.db");
-                Statement s = connection.createStatement();
-                s.setQueryTimeout(5);
-
-                // Store all student info
-                student = StudentInfo.getStudent(s, studentID);
-                section = SectionInfo.getSection(s, student.sectionID);
-
-                // Subjects
-                rs = s.executeQuery("select distinct subjectID from Grades where studentID = " + studentID);
-                while (rs.next()) {
-                    subject.add(SubjectInfo.getSubject(s, rs.getInt("subjectID")));
-                }
-
-                // Grades
-                PreparedStatement ps = connection.prepareStatement("select * from Grades where studentID = ? and subjectID = ?");
-                ps.setString(1, "" + studentID);
-                for (int i = 0; i < subject.size(); i++) {
-                    ps.setString(2, "" + subject.get(i).subjectID);
-                    rs = ps.executeQuery();
-                    for (int j = 1; j <= 4; j++) {
-                        if (rs.next()) {
-                            grade.add(GradeInfo.getGrade(s, studentID, subject.get(i).subjectID, j));
-                        }
-                    }
-                }
-
-                System.out.println(grade.size());
+        // Print out list of subjects and grades for the student
+        for (int i = 1; i <= record.subject.size(); i++) {
+            double ave = 0;
+            table.addCell(tableCell(record.subject.get(i - 1).subjectName, defaultFont));
+            for (int j = 0; j < 4; j++) {
+                ave += record.grade.get(j * i).studentPeriodGrade;
+                table.addCell(tableCell("" + record.grade.get(j * i).studentPeriodGrade, defaultFont));
             }
-            catch (SQLException e) {
-                // if the error message is "out of memory",
-                // it probably means no database file is found
-                System.err.println(e.getMessage());
-            }
-            finally {
-                try {
-                    if (connection != null)
-                        connection.close();
-                } catch (SQLException e) {
-                    // connection close failed.
-                    System.err.println(e.getMessage());
-                }
-            }
+
+            table.addCell(tableCell("" + ave / 4, defaultFont));
         }
+
+        return table;
+    }
+
+    private static Table sectionTable(Document document, int sectionID, PdfFont titleFont, PdfFont defaultFont) {
+        SectionRecord record = new SectionRecord(sectionID);
+
+        createText(document, "SECTION RECORD", TextAlignment.CENTER, titleFont);
+        createText(document, "\n", TextAlignment.CENTER, defaultFont);
+        createText(document, "Section Name: " + record.section.sectionName, TextAlignment.LEFT, defaultFont);
+        createText(document, "\n", TextAlignment.CENTER, defaultFont);
+
+        Table table = new Table(UnitValue.createPercentArray(6)).useAllAvailableWidth();
+        table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+        // Headers
+        table.addHeaderCell(tableCell("Student ID", titleFont));
+        table.addHeaderCell(tableCell("Last Name", titleFont));
+        table.addHeaderCell(tableCell("First Name", titleFont));
+        table.addHeaderCell(tableCell("Middle Initial", titleFont));
+        table.addHeaderCell(tableCell("Grade Average", titleFont));
+        table.addHeaderCell(tableCell("Passed, Failed", titleFont));
+
+        // Print out list of subjects and grades for the student
+        for (int i = 0; i < record.studentgrades.size(); i++) {
+            table.addCell(tableCell("" + record.studentgrades.get(i).student.studentID, defaultFont));
+            table.addCell(tableCell("" + record.studentgrades.get(i).student.studentLN, defaultFont));
+            table.addCell(tableCell("" + record.studentgrades.get(i).student.studentFN, defaultFont));
+            table.addCell(tableCell("" + record.studentgrades.get(i).student.studentMI, defaultFont));
+            double gwa = record.studentgrades.get(i).student.studentGWA;
+            table.addCell(tableCell("" + gwa, defaultFont));
+            String result;
+            if (gwa >= 75.0) result = "Passed";
+            else result = "Failed";
+            table.addCell(tableCell(result, defaultFont));
+        }
+
+        return table;
+    }
+
+    private static Paragraph createText(Document document, String text, TextAlignment align, PdfFont font) {
+        Paragraph p = new Paragraph(text);
+        p.setTextAlignment(align);
+        p.setFont(font);
+        document.add(p);
+
+        return p;
+    }
+
+    private static Cell tableCell(String text, PdfFont font) {
+        return new Cell().setFont(font).add(new Paragraph(text).setTextAlignment(TextAlignment.CENTER));
     }
 }
