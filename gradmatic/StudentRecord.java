@@ -43,25 +43,25 @@ public class StudentRecord {
 
             // Store all student info
             student = StudentInfo.getStudent(s, studentID);
+
+            // Store section info
             section = SectionInfo.getSection(s, student.sectionID);
 
-            // Subjects
-            rs = s.executeQuery("select distinct subjectID from Grades where studentID = " + studentID);
-            while (rs.next()) {
-                subject.add(SubjectInfo.getSubject(s, rs.getInt("subjectID")));
-            }
+            // // Subjects
+            // rs = s.executeQuery("select distinct subjectID from Grades where studentID = " + studentID);
+            // while (rs.next()) {
+            //     subject.add(SubjectInfo.getSubject(s, rs.getInt("subjectID")));
+            // }
 
-            // Grades
-            PreparedStatement ps = connection.prepareStatement("select * from Grades where studentID = ? and subjectID = ?");
-            ps.setString(1, "" + studentID);
-            for (int i = 0; i < subject.size(); i++) {
-                ps.setString(2, "" + subject.get(i).subjectID);
-                rs = ps.executeQuery();
+            // Grades and Subjects
+            rs = s.executeQuery("select * from Grades where studentID = " + studentID + " order by subjectID ASC");
+            while (rs.next()) {
+                int temp_id = rs.getInt("subjectID");;
                 for (int j = 1; j <= 4; j++) {
-                    if (rs.next()) {
-                        grade.add(GradeInfo.getGrade(s, studentID, subject.get(i).subjectID, j));
-                    }
+                    System.out.println(j);
+                    grade.add(GradeInfo.getGrade(s, studentID, temp_id, j));
                 }
+                subject.add(SubjectInfo.getSubject(s, temp_id));
             }
         } catch (SQLException e) {
             // if the error message is "out of memory",

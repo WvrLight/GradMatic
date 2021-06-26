@@ -18,16 +18,19 @@ import java.io.IOException;
 public class PdfOutput {
     static String dest;
 
+    /**
+     * PDF OUTPUT
+     * 
+     * To use, simply use the line located in the example main function. The first value is the type of table, and the second is the ID to be retrieved.
+     * Values allowed:
+     * 0 - student file
+     * 1 - section file
+     * 
+     * This will create either a section or student file that contains all the relevant information needed.
+     * 
+     * 
+     */
     public static void main(String[] args) throws Exception {
-        // StudentRecord test = new StudentRecord(122);
-        // System.out.println(test.student.studentLN);
-        // System.out.println(test.section.sectionName);
-        // System.out.println(test.subject.get(0).subjectName);
-        // System.out.println(test.grade.get(0).studentPeriodGrade);
-        // System.out.println(test.grade.get(1).studentPeriodGrade);
-        // System.out.println(test.grade.get(2).studentPeriodGrade);
-        // System.out.println(test.grade.get(3).studentPeriodGrade);
-
         new PdfOutput().manipulatePdf(0, 920);
     }
 
