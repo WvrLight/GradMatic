@@ -94,4 +94,12 @@ public class SectionRecord {
 class StudentGrades {
     Student student = new Student();
     ArrayList<Double> averages = new ArrayList<Double>();
+
+    public Double getTotalAverage() {
+        double total_average = 0;
+        for (double i : averages) {
+            total_average += i;
+        }
+        return total_average / 4;
+    }
 }

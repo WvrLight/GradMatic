@@ -58,7 +58,6 @@ public class StudentRecord {
             while (rs.next()) {
                 int temp_id = rs.getInt("subjectID");;
                 for (int j = 1; j <= 4; j++) {
-                    System.out.println(j);
                     grade.add(GradeInfo.getGrade(s, studentID, temp_id, j));
                 }
                 subject.add(SubjectInfo.getSubject(s, temp_id));

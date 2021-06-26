@@ -31,12 +31,12 @@ public class PdfOutput {
      * 
      */
     public static void main(String[] args) throws Exception {
-        new PdfOutput().manipulatePdf(0, 920);
+        new PdfOutput().manipulatePdf(1, 10);
     }
 
     protected void manipulatePdf(int tableType, int ID) throws IOException {
         if (tableType == 0) dest = "./records/student_" + ID + ".pdf";
-        else dest = "./records/section_" + ID;
+        else dest = "./records/section_" + ID + ".pdf";
 
         File file = new File(dest);
         file.getParentFile().mkdirs();
@@ -114,7 +114,7 @@ public class PdfOutput {
             table.addCell(tableCell("" + record.studentgrades.get(i).student.studentLN, defaultFont));
             table.addCell(tableCell("" + record.studentgrades.get(i).student.studentFN, defaultFont));
             table.addCell(tableCell("" + record.studentgrades.get(i).student.studentMI, defaultFont));
-            double gwa = record.studentgrades.get(i).student.studentGWA;
+            double gwa = record.studentgrades.get(i).getTotalAverage();
             table.addCell(tableCell("" + gwa, defaultFont));
             String result;
             if (gwa >= 75.0) result = "Passed";
